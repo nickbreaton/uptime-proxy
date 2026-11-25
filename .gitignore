@@ -1,0 +1,4 @@
+node_modules
+.alchemy
+.env
+.DS_Store
