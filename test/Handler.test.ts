@@ -79,7 +79,13 @@ describe("Handler", () => {
     }),
   );
 
-  it.effect.each([200, 404, 503])("returns upstream status %s for the upstream URL", (status) =>
+  it.effect.each([
+    { upstream: 200, expected: 200 },
+    { upstream: 204, expected: 503 },
+    { upstream: 302, expected: 503 },
+    { upstream: 404, expected: 503 },
+    { upstream: 500, expected: 503 },
+  ])("returns $expected when the upstream returns $upstream", ({ upstream, expected }) =>
     Effect.gen(function* () {
       const request = new Request("http://localhost/https://example.com/health?x=1", {
         headers: { authorization: "Bearer test-token" },
@@ -88,10 +94,10 @@ describe("Handler", () => {
       const response = yield* handle(request, (url) => {
         assert.strictEqual(url.href, "https://example.com/health?x=1");
 
-        return Effect.succeed(status);
+        return Effect.succeed(upstream);
       });
 
-      assert.strictEqual(response.status, status);
+      assert.strictEqual(response.status, expected);
     }),
   );
 

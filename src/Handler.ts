@@ -33,7 +33,7 @@ export const Handler = Effect.gen(function* () {
 
     const status = yield* upstream.status(url.value);
 
-    return HttpServerResponse.empty({ status });
+    return respond(status === 200 ? "OK" : "ServiceUnavailable");
   }).pipe(
     Effect.catchTag("HttpClientError", () => Effect.succeed(respond("BadGateway"))),
     HttpMiddleware.searchParamsParser,
