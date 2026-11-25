@@ -1,5 +1,5 @@
 import { Config, Context, Effect, Layer, Redacted } from "effect";
-import { HttpClient, type HttpClientError } from "effect/http";
+import { FetchHttpClient, HttpClient, type HttpClientError } from "effect/http";
 
 export class Upstream extends Context.Service<
   Upstream,
@@ -15,12 +15,14 @@ export class Upstream extends Context.Service<
       const client = yield* HttpClient.HttpClient;
 
       const status = Effect.fn("Upstream.status")(function* (url: URL) {
-        const response = yield* client.get(url, {
-          headers: {
-            "CF-Access-Client-Id": Redacted.value(clientId),
-            "CF-Access-Client-Secret": Redacted.value(clientSecret),
-          },
-        });
+        const response = yield* client
+          .get(url, {
+            headers: {
+              "CF-Access-Client-Id": Redacted.value(clientId),
+              "CF-Access-Client-Secret": Redacted.value(clientSecret),
+            },
+          })
+          .pipe(Effect.provideService(FetchHttpClient.RequestInit, { redirect: "manual" }));
 
         return response.status;
       });
