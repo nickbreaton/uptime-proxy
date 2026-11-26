@@ -66,7 +66,20 @@ describe("Handler", () => {
     }),
   );
 
-  it.effect("rejects non-GET requests with 405", () =>
+  it.effect("checks the upstream for HEAD requests", () =>
+    Effect.gen(function* () {
+      const request = new Request("http://localhost/https://example.com", {
+        method: "HEAD",
+        headers: { authorization: "Bearer test-token" },
+      });
+
+      const response = yield* handle(request, () => Effect.succeed(200));
+
+      assert.strictEqual(response.status, 200);
+    }),
+  );
+
+  it.effect("rejects other methods with 405", () =>
     Effect.gen(function* () {
       const request = new Request("http://localhost/https://example.com", {
         method: "POST",

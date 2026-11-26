@@ -15,7 +15,7 @@ export const Handler = Effect.gen(function* () {
   return Effect.gen(function* () {
     const request = yield* HttpServerRequest.HttpServerRequest;
 
-    if (request.method !== "GET") {
+    if (request.method !== "GET" && request.method !== "HEAD") {
       return respond("MethodNotAllowed");
     }
 
